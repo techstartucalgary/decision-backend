@@ -42,7 +42,7 @@ class App {
   public getServer() {
     return this.app;
   }
-
+  //test
   private initializeMiddlewares() {
     this.app.use(morgan(config.get('log.format'), { stream }));
     this.app.use(cors({ origin: config.get('cors.origin'), credentials: config.get('cors.credentials') }));

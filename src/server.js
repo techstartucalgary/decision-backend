@@ -7,7 +7,7 @@ const express = require('express')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
-const Session = require('./models/session');
+const Session = require('./database/models/session');
 
 const morgan = require('morgan')
 mongoose.connect(process.env.DATABASE_URL, { 

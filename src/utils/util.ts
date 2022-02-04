@@ -17,3 +17,11 @@ export const isEmpty = (value: string | number | object): boolean => {
     return false;
   }
 };
+/**
+ * 
+ * @returns returns a random 9 length string (numbers and letters). 
+ */
+export const createID = function () {
+  return Math.random().toString(36).substr(2,9)
+};
+

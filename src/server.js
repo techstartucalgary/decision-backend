@@ -62,10 +62,6 @@ app.get('/newSession', (req, res) => {
 
 
 
-
-
-
-
-
+module.exports = {createID};
 
 app.listen(process.env.PORT || 3000)

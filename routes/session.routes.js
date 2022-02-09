@@ -9,8 +9,6 @@ const createID = function () {
 
 // CREATE NEW SESSION (User Presses generatelink)
 router.post("/", async (req, res) => {
-    
-
 
     const newSession = new session({
         names: req.body.names,
@@ -41,9 +39,12 @@ router.put("/:id", async (req, res) => {
 
 });
 
+// Method to update users parameters
 router.patch("/:id", async (req, res) => {
 
-    
+    await session.findOneAndUpdate( {linkID: req.params.id}, {
+
+    })
 
 });
 

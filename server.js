@@ -3,9 +3,10 @@ require('dotenv/config');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const google = require('googleapis');
 
 const app = express();
-const session = require('./routes/session');
+const session = require('./routes/session.routes');
 
 
 app.use(bodyParser.json());
@@ -17,8 +18,6 @@ mongoose.connect(process.env.DATABASE_URL, {
     }, 
     () => { console.log("Mongo Connected")
     });
-
-
 
 
 app.listen(process.env.PORT, () => {

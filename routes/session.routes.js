@@ -1,4 +1,5 @@
 const express = require('express');
+const { removeListener } = require('../models/session.model');
 const session = require("../models/session.model");
 
 var router = express.Router();
@@ -14,7 +15,7 @@ router.post("/", async (req, res) => {
         names: req.body.names,
         linkID: createID(),
         budget: req.body.budget,
-        activities: req.body.activities
+        activities: req.body.activities,
     });
     try {
         newSession
@@ -24,6 +25,7 @@ router.post("/", async (req, res) => {
         res.status(400).json("Error: " + err)};
 
 });
+
 
 // Add new User & Parameters to existing Session
 router.put("/:id", async (req, res) => {
@@ -39,14 +41,37 @@ router.put("/:id", async (req, res) => {
 
 });
 
-// Method to update users parameters
-router.patch("/:id", async (req, res) => {
+// Delete specific parameters
+router.delete("/:id", async (req, res) => {
 
     await session.findOneAndUpdate( {linkID: req.params.id}, {
-
+        $pull: { 
+            names: req.body.names,
+            budget: req.body.budget,
+            activities: req.body.activities,
+        }, 
+    }, {
+        multi: true
     })
+    res.send('Deleted parameters');
 
 });
+
+//Not working. Most likely have to go with different schema
+router.patch("/:id", async(req, res) => {
+
+    const oldName = req.body.oldName;
+    const oldBudget = req.body.oldBudget;
+    const oldActivities = req.body.oldActivities;
+
+    await session.findOneAndUpdate({linkID: req.params.id, names: oldName }, {
+        $set: {
+            names: req.body.newNames,
+            budget: req.body.newBudget,
+            activities: req.body.newActivities,
+        }
+    })
+})
 
 
 

@@ -1,10 +1,10 @@
 const mongoose = require('mongoose')
 
 var sessionSchema = new mongoose.Schema({
+
     linkID: {
         type: String,
         require: true,
-        unique: true,
     },
     names: [{
         type: String,
@@ -16,9 +16,7 @@ var sessionSchema = new mongoose.Schema({
         require: true,
         unique: false
     }],
-    activities: [{
-        type: String
-    }]
+    activities: [String]
 })
 
 const Session = mongoose.model('Session', sessionSchema);

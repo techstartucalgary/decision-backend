@@ -7,37 +7,45 @@ const createID = function () {
     return Math.random().toString(36).substring(2,7)
 };
 
-// CREATE NEW SESSION (User presses generatelink)
+// CREATE NEW SESSION (User Presses generatelink)
 router.post("/", async (req, res) => {
     
-    console.log(req.body);
-    const names = req.body.names;
-    const linkID = createID();
-    const budget = req.body.budget;
-    const activities = req.body.activities;
+
 
     const newSession = new session({
-        names,
-        linkID,
-        budget,
-        activities,
+        names: req.body.names,
+        linkID: createID(),
+        budget: req.body.budget,
+        activities: req.body.activities
     });
     try {
         newSession
         .save()
-        .then(() => res.json(newSession.id))
+        .then(() => res.json(newSession.linkID))
     } catch(err) {
         res.status(400).json("Error: " + err)};
 
 });
 
+// Add new User & Parameters to existing Session
+router.put("/:id", async (req, res) => {
 
-// Update 
-router.put("/:linkID", (req, res) => {
-    session.updateOne({ _id: req.params.linkID})
+    await session.findOneAndUpdate( {linkID: req.params.id}, {
+        $push: { 
+            names: req.body.names,
+            budget: req.body.budget,
+            activities: req.body.activities,
+        }
+    })
+    res.send('Added User and Parameters');
+
 });
 
+router.patch("/:id", async (req, res) => {
 
+    
+
+});
 
 
 

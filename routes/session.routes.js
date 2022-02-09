@@ -11,9 +11,11 @@ const createID = function () {
 // CREATE NEW SESSION (User Presses generatelink)
 router.post("/", async (req, res) => {
 
+    const link = createID();
+
     const newSession = new session({
         names: req.body.names,
-        linkID: createID(),
+        linkID: link,
         budget: req.body.budget,
         activities: req.body.activities,
     });

@@ -10,9 +10,11 @@ const createID = function () {
 // CREATE NEW SESSION (User Presses generatelink)
 router.post("/", async (req, res) => {
 
+    const link = createID();
+
     const newSession = new session({
         names: req.body.names,
-        linkID: createID(),
+        linkID: link,
         budget: req.body.budget,
         activities: req.body.activities
     });
@@ -40,11 +42,16 @@ router.put("/:id", async (req, res) => {
 });
 
 // Method to update users parameters
-router.patch("/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
 
     await session.findOneAndUpdate( {linkID: req.params.id}, {
-
+        $pull: { 
+            names: req.body.names,
+            budget: req.body.budget,
+            activities: req.body.activities,
+        }
     })
+    res.send('Deleted User and Parameters');
 
 });
 

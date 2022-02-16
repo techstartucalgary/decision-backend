@@ -1,78 +1,96 @@
 const express = require('express');
-const { removeListener } = require('../models/location.model');
 const PollPage = require("../models/pollPage.model");
-const location = require("../models/location.model");
+const location = require("../models/locations.model");
+
+var mongo = require('mongodb').MongoClient;
 
 var router = express.Router();
 
 
-// find matching lcations with given budget and category
-// router.get("/findMatchingLocations", function(req, res) {
-    
-//     var myCursor = location.find({
+// find matching locations with given budget and category
+router.get("/findMatchingLocations", async (req, res) => {
 
-//         $and: [
-//             { budget: { $eq: req.body.budget } },
-//             { category: { $eq: req.body.category } }
-//         ]
-        
-//     });
+    await location.find({
+        $and: [
+            { budget: { $eq: req.body.budget } },
+            { category: { $eq: req.body.category } }
+        ]
+    }). then(function(response)
+    {
+        if(response.length == 0)
+        {
+            res.send("No matches found");
+        }
+        else 
+        {
+            // console.log(response[0]._id);
+            res.send(response);
+        }           
+    });
 
-//     var myDocument = myCursor.hasNext() ? myCursor.next() : null;
-
-//     if(myDocument)
-//     {
-//         var name = myDocument.locationName;
-//         print(tojson(name));
-//     }
-
-// });
+});
 
 
-// // Add a new location 
-// router.post("/newLocation", async (req, res) => {
+function createPoll(loc, id)
+{
+    const poll = new PollPage ( {
+        linkId: id,
+        locationId: loc._id,
+        locationName: loc.locationName
 
-//     const newLocation = new Location({
-        
-//         linkId: req.body.linkId,
-//         locationName: req.body.locationName
-//     });
-//     newLocation.votes = 0;
+    });
+    poll.save();
+}
 
-//     try {
-//         newLocation
-//         .save()
-//         .then(() => res.json(newLocation._id))
-//     } catch(err) {
-//         res.status(400).json("Error: " + err)};
+// create the matching location documents
+router.get("/createLocationDocuments", async (req, res) => {
 
-// });
+    let poll = new PollPage();
+    await location.find({
+        $and: [
+            { budget: { $eq: req.body.budget } },
+            { category: { $eq: req.body.category } }
+        ]
+    }). then(function(response)
+    {
+        if(response.length == 0)
+        {
+            res.send("No matches found");
+        }
+        else 
+        {
+            for(let i = 0; i < response.length; i++)
+            {
+                createPoll(response[i], req.body.linkId);
+            }
+            res.send(response);
+        }           
+    });
+
+});
+
+// Updates votes and members of existing Poll
+router.put("/vote/update", async (req, res) => {
+
+    await PollPage.findOneAndUpdate({
+        $and: [
+            { linkId: { $eq: req.body.linkId } },
+            { locationId: { $eq: req.body.locationId} }
+        ]
+    }, 
+    {
+        $inc : {"votes" : 1},
+        $push : {"members" : req.body.memberName}
+
+    }). then( function() {
+        res.send("Updated Poll");
+    })
+
+});
 
 router.get("/testPollPage", function(req, res) {
     res.send("Hello PollPage");
 
 });
 
-
 module.exports = router;
-
-
-// // Update location votes of an existing location
-// router.put("/updateLocation", async (req, res) => {
-
-//     const newLocation = new Location({
-        
-//         linkId: req.body.linkId,
-//         locationId: createID()
-//         // locationName: 
-//     });
-//     newLocation.votes = 0;
-
-//     try {
-//         newLocation
-//         .save()
-//         .then(() => res.json(newLocation.l))
-//     } catch(err) {
-//         res.status(400).json("Error: " + err)};
-
-// });

@@ -1,36 +1,14 @@
 const express = require('express');
 const PollPage = require("../models/pollPage.model");
-const location = require("../models/locations.model");
+const Location = require("../models/locations.model");
+const Session = require("../models/session.model");
 
 var mongo = require('mongodb').MongoClient;
 
 var router = express.Router();
 
 
-// find matching locations with given budget and category
-router.get("/findMatchingLocations", async (req, res) => {
-
-    await location.find({
-        $and: [
-            { budget: { $eq: req.body.budget } },
-            { category: { $eq: req.body.category } }
-        ]
-    }). then(function(response)
-    {
-        if(response.length == 0)
-        {
-            res.send("No matches found");
-        }
-        else 
-        {
-            // console.log(response[0]._id);
-            res.send(response);
-        }           
-    });
-
-});
-
-
+// creates a new Poll document given locaion and link IDs
 function createPoll(loc, id)
 {
     const poll = new PollPage ( {
@@ -42,14 +20,44 @@ function createPoll(loc, id)
     poll.save();
 }
 
-// create the matching location documents
-router.get("/createLocationDocuments", async (req, res) => {
+// finds and returns session given linkID
+async function getSession (id)
+{
+    var session;
+    await Session.findOne({
+        linkID: { $eq: id }
+    }). then(function(response)
+    {
+        // console.log(response.activities);
+        session = response; //.budget[0];
+        // console.log(budget);
+        
+    })
+    return session;
+}
+
+// returns the polls of given linkID
+router.get("/:id/getPolls", async (req, res) => {
+
+    await PollPage.find({
+            linkId: { $eq: req.params.id }
+    }). then( function(response) {
+        res.send(response);
+    })
+});
+
+// Finds matching locations given linkID, creates the matching location polls and returns all polls
+router.get("/:id/createPolls", async (req, res) => {
+
+    var session = await getSession(req.params.id);
+    var categories = session.activities;
+    var b = session.budget;
 
     let poll = new PollPage();
-    await location.find({
+    await Location.find({
         $and: [
-            { budget: { $eq: req.body.budget } },
-            { category: { $eq: req.body.category } }
+            { budget: { $eq: b[0] } },
+            { category: { $in: categories } }
         ]
     }). then(function(response)
     {
@@ -69,25 +77,77 @@ router.get("/createLocationDocuments", async (req, res) => {
 
 });
 
-// Updates votes and members of existing Poll
-router.put("/vote/update", async (req, res) => {
 
-    await PollPage.findOneAndUpdate({
+// Adds/Updates vote count and members of existing Poll
+router.put("/:id/addVotes", async (req, res) => {
+    
+    var locations = req.body.locationIds;
+    
+    for(let i = 0; i < locations.length; i++)
+    {
+        PollPage.findOneAndUpdate({
         $and: [
-            { linkId: { $eq: req.body.linkId } },
-            { locationId: { $eq: req.body.locationId} }
-        ]
-    }, 
+            { linkId: { $eq: req.params.id } },
+            { locationId: { $eq: locations[i] } }
+        ] 
+    },
     {
         $inc : {"votes" : 1},
         $push : {"members" : req.body.memberName}
-
-    }). then( function() {
-        res.send("Updated Poll");
+    }, function(err, result) {
+        if(err)
+        {
+            res.send(err);
+        }
     })
+    }
+    
+    // the code below sometimes fails to return updated polls, use another endpoint to retrieve most updated polls 
+    PollPage.find({
+            linkId: { $eq: req.params.id }
+    }). then( function(response) {
+        res.send(response);
+    })
+
 
 });
 
+// Deletes members aand updates vote count of existing Poll given linkID
+router.put("/:id/deleteVotes", async (req, res) => {
+    
+    var locations = req.body.locationIds;
+    
+    for(let i = 0; i < locations.length; i++)
+    {
+        PollPage.findOneAndUpdate({
+            $and: [
+                { linkId: { $eq: req.params.id } },
+                { locationId: { $eq: locations[i] } }
+            ] 
+        },
+        {
+            $inc : {"votes" : -1},
+            $pull : {"members" : req.body.memberName}
+        }, function(err, result) {
+            if(err)
+            {
+                res.send(err);
+            }
+        })
+    }
+    
+    // the code below sometimes fails to return updated polls, use another endpoint to retrieve most updated polls 
+    PollPage.find({
+            linkId: { $eq: req.params.id }
+    }). then( function(response) {
+        res.send(response);
+    })
+
+
+});
+
+
+// Tests router
 router.get("/testPollPage", function(req, res) {
     res.send("Hello PollPage");
 

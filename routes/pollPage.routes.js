@@ -69,7 +69,7 @@ router.get("/:id/createPolls", async (req, res) => {
         {
             for(let i = 0; i < response.length; i++)
             {
-                createPoll(response[i], req.body.linkId);
+                createPoll(response[i], req.params.id);
             }
             res.send(response);
         }           

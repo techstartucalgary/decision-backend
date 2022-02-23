@@ -11,7 +11,13 @@ router.post("/addNewLocation", async (req, res) => {
 
         locationName: req.body.locationName,
         budget: req.body.budget,
-        category: req.body.category  
+        type: req.body.type,
+        location: req.body.location,
+        distance: req.body.distance,
+        description: req.body.description,
+        rating: req.body.rating,
+        reviews: req.body.reviews,
+
         
     });
 
@@ -34,7 +40,9 @@ router.get("/findLocations", async (req, res) => {
             { budget : { $eq: req.body.budget } },
             { category : { $in: categories }}
         ]
-    }).limit(3*categories.length). then(function(response)
+    })
+    .limit(3*categories.length)
+    .then(function(response)
     {
         if(response.length == 0)
         {
@@ -65,7 +73,8 @@ router.get("/:id/findMatchingLocations", async (req, res) => {
             { budget: { $eq: b[0] } },
             { activities: { $eq: {$in: categories}}}
         ]
-    }). then(function(response)
+    })
+    .then(function(response)
     {
         if(response.length == 0)
         {

@@ -11,10 +11,26 @@ var locationSchema = new mongoose.Schema ({
         type: Number,
         require: true
     },
-    category: {
+    type: {
         type: String,
         require: true
+    },
+    location: {
+        type: String,
+    },
+    distance: {
+        type: String,
+    },
+    description: {
+        type: String,
+    },
+    rating: {
+        type: Number,
+    },
+    reviews: {
+        type: Number,
     }
+    
 })
 
 module.exports = mongoose.model('Location', locationSchema);

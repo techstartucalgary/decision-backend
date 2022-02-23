@@ -9,7 +9,7 @@ var mongo = require('mongodb').MongoClient;
 var router = express.Router();
 
 
-// creates a new Poll document given locaion and link IDs
+// creates a new Poll document given location and link IDs
 function createPoll(loc, id)
 {
     const poll = new PollPage ( {
@@ -60,7 +60,8 @@ router.get("/:id/createPolls", async (req, res) => {
             { budget: { $eq: b[0] } },
             { category: { $in: categories } }
         ]
-    }). then(function(response)
+    })
+    .then(function(response)
     {
         if(response.length == 0)
         {
@@ -113,7 +114,7 @@ router.put("/:id/addVotes", async (req, res) => {
 
 });
 
-// Deletes members aand updates vote count of existing Poll given linkID
+// Deletes members and updates vote count of existing Poll given linkID
 router.put("/:id/deleteVotes", async (req, res) => {
     
     var locations = req.body.locationIds;

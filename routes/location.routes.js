@@ -1,7 +1,5 @@
 const express = require('express');
-// const { removeListener } = require('../models/locations.model');
-const Location = require("../models/locations.model");
-const Session = require("../models/session.model");
+const location = require("../models/locations.model");
 
 var router = express.Router();
 
@@ -9,7 +7,7 @@ var router = express.Router();
 // Add a new location 
 router.post("/addNewLocation", async (req, res) => {
 
-    const newLocation = new Location({
+    const newLocation = new location({
 
         locationName: req.body.locationName,
         budget: req.body.budget,

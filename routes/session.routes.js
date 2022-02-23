@@ -73,9 +73,7 @@ router.patch("/:id", async(req, res) => {
             activities: req.body.newActivities,
         }
     })
-})
-
-
+});
 
 
 module.exports = router;

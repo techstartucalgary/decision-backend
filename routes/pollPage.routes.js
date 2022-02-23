@@ -1,3 +1,4 @@
+
 const express = require('express');
 const PollPage = require("../models/pollPage.model");
 const Location = require("../models/locations.model");
@@ -153,4 +154,23 @@ router.get("/testPollPage", function(req, res) {
 
 });
 
+<<<<<<< Updated upstream
 module.exports = router;
+=======
+//     const newLocation = new Location({
+        
+//         linkId: req.body.linkId,
+//         locationId: createID()
+//         // locationName: 
+//     });
+//     newLocation.votes = 0;
+
+//     try {
+//         newLocation
+//         .save()
+//         .then(() => res.json(newLocation.l))
+//     } catch(err) {
+//         res.status(400).json("Error: " + err)};
+
+// });
+>>>>>>> Stashed changes

@@ -1,5 +1,4 @@
 const express = require('express');
-const { removeListener } = require('../models/session.model');
 const session = require("../models/session.model");
 
 var router = express.Router();
@@ -17,7 +16,7 @@ router.post("/", async (req, res) => {
         names: req.body.names,
         linkID: link,
         budget: req.body.budget,
-        activities: req.body.activities,
+        activities: req.body.activities
     });
     try {
         newSession
@@ -28,52 +27,31 @@ router.post("/", async (req, res) => {
 
 });
 
-
-// Add new User & Parameters to existing Session
+// Add new User to existing poll
 router.put("/:id", async (req, res) => {
 
     await session.findOneAndUpdate( {linkID: req.params.id}, {
         $push: { 
             names: req.body.names,
-            budget: req.body.budget,
-            activities: req.body.activities,
         }
     })
     res.send('Added User and Parameters');
 
 });
 
-// Delete specific parameters
+// Method to update users parameters
 router.delete("/:id", async (req, res) => {
 
     await session.findOneAndUpdate( {linkID: req.params.id}, {
         $pull: { 
             names: req.body.names,
-            budget: req.body.budget,
-            activities: req.body.activities,
-        }, 
-    }, {
-        multi: true
-    })
-    res.send('Deleted parameters');
-
-});
-
-//Not working. Most likely have to go with different schema
-router.patch("/:id", async(req, res) => {
-
-    const oldName = req.body.oldName;
-    const oldBudget = req.body.oldBudget;
-    const oldActivities = req.body.oldActivities;
-
-    await session.findOneAndUpdate({linkID: req.params.id, names: oldName }, {
-        $set: {
-            names: req.body.newNames,
-            budget: req.body.newBudget,
-            activities: req.body.newActivities,
         }
     })
+    res.send('Deleted User and Parameters');
+
 });
+
+
 
 
 module.exports = router;

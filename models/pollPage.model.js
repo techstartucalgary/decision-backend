@@ -7,7 +7,7 @@ var pollPageSchema = new mongoose.Schema ({
         type: String,
         require: true
     },
-    locationId: {
+    locationID: {
         type: String,
         require: true
     },

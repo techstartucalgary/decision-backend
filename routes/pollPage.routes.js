@@ -48,7 +48,7 @@ router.get("/:id/getPolls", async (req, res) => {
 });
 
 // Finds matching locations given linkID, creates the matching location polls and returns all polls
-router.get("/:id/createPolls", async (req, res) => {
+router.post("/:id/createPolls", async (req, res) => {
 
     var session = await getSession(req.params.id);
     var categories = session.activities;
@@ -82,34 +82,25 @@ router.get("/:id/createPolls", async (req, res) => {
 
 // Adds/Updates vote count and members of existing Poll
 router.put("/:id/addVotes", async (req, res) => {
-    
-    var locations = req.body.locationIds;
-    
-    for(let i = 0; i < locations.length; i++)
-    {
+
         PollPage.findOneAndUpdate({
         $and: [
             { linkId: { $eq: req.params.id } },
-            { locationId: { $eq: locations[i] } }
-        ] 
+            { locationId: { $eq: req.body.locationID } }, 
+        ],
     },
     {
-        $inc : {"votes" : 1},
+        $inc : {votes: 1},
         $push : {"members" : req.body.memberName}
-    }, function(err, result) {
+    },
+    { new: true }, 
+    function(err, result) {
         if(err)
         {
             res.send(err);
         }
     })
-    }
-    
-    // the code below sometimes fails to return updated polls, use another endpoint to retrieve most updated polls 
-    PollPage.find({
-            linkId: { $eq: req.params.id }
-    }). then( function(response) {
-        res.send(response);
-    })
+    res.send("Incremented Vote");
 
 
 });
@@ -117,26 +108,23 @@ router.put("/:id/addVotes", async (req, res) => {
 // Deletes members and updates vote count of existing Poll given linkID
 router.put("/:id/deleteVotes", async (req, res) => {
     
-    var locations = req.body.locationIds;
-    
-    for(let i = 0; i < locations.length; i++)
-    {
         PollPage.findOneAndUpdate({
             $and: [
                 { linkId: { $eq: req.params.id } },
-                { locationId: { $eq: locations[i] } }
+                { locationId: { $eq: req.body.locationID } }
             ] 
         },
         {
             $inc : {"votes" : -1},
             $pull : {"members" : req.body.memberName}
+        }, {
+            new: true
         }, function(err, result) {
             if(err)
             {
                 res.send(err);
             }
         })
-    }
     
     // the code below sometimes fails to return updated polls, use another endpoint to retrieve most updated polls 
     PollPage.find({
@@ -148,7 +136,7 @@ router.put("/:id/deleteVotes", async (req, res) => {
 
 });
 
-
+//Twilio 
 // Tests router
 router.get("/testPollPage", function(req, res) {
     res.send("Hello PollPage");
@@ -157,3 +145,5 @@ router.get("/testPollPage", function(req, res) {
 
 module.exports = router;
 
+//Generate feedback to how we did. if they enjoyed that place, what they liked what they didnt
+// Twilio

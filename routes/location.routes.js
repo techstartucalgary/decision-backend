@@ -17,14 +17,13 @@ router.post("/addNewLocation", async (req, res) => {
         description: req.body.description,
         rating: req.body.rating,
         reviews: req.body.reviews,
-
         
     });
 
     try {
         newLocation
         .save()
-        .then(() => res.json(newLocation._id))
+        .then(() => res.send("Added new Location"))
     } catch(err) {
         res.status(400).json("Error: " + err)};
 

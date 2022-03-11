@@ -19,10 +19,6 @@ var sessionSchema = new mongoose.Schema({
     activities: [{
         type: String,
     }],
-    userID: {
-        type: String,
-        unique: true,
-    }
 })
 
 const Session = mongoose.model('Session', sessionSchema);

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 
-
 var pollPageSchema = new mongoose.Schema ({
 
     linkId: {

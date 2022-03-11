@@ -14,7 +14,7 @@ function createPoll(loc, id)
 {
     const poll = new PollPage ( {
         linkId: id,
-        locationId: loc._id,
+        locationID: loc._id,
         locationName: loc.locationName
 
     });
@@ -53,12 +53,12 @@ router.post("/:id/createPolls", async (req, res) => {
     var session = await getSession(req.params.id);
     var categories = session.activities;
     var b = session.budget;
-
+    console.log(categories);
     let poll = new PollPage();
     await Location.find({
         $and: [
             { budget: { $eq: b[0] } },
-            { category: { $in: categories } }
+            { type: { $in: categories } }
         ]
     })
     .then(function(response)
@@ -81,12 +81,41 @@ router.post("/:id/createPolls", async (req, res) => {
 
 
 // Adds/Updates vote count and members of existing Poll
+// router.put("/:id/addVotes", async (req, res) => {
+
+//     PollPage.find({
+//     $and: [
+//         { linkId: { $eq: req.params.id } },
+//         { locationID: { $in: req.body.locationIds } }, 
+//     ],
+// }, function(err, result) {
+//     console.log("here");
+//     if(err)
+//     {
+//         res.send(err);
+//     }
+//     else
+//     {
+//         console.log(result[0]);
+//         for(let i = 0; i < result.length; i++)
+//         {
+//             result[i].members.push(req.body.memberName);
+//             result[i].votes ++;
+//             console.log(result[i].members);
+//             console.log(result[i].votes);
+//         }
+//     }
+// })
+// res.send("Incremented Vote");
+
+
+// });
 router.put("/:id/addVotes", async (req, res) => {
 
-        PollPage.findOneAndUpdate({
+        PollPage.updateMany({
         $and: [
             { linkId: { $eq: req.params.id } },
-            { locationId: { $eq: req.body.locationID } }, 
+            { locationID: { $in: req.body.locationIds } }, 
         ],
     },
     {
@@ -108,10 +137,10 @@ router.put("/:id/addVotes", async (req, res) => {
 // Deletes members and updates vote count of existing Poll given linkID
 router.put("/:id/deleteVotes", async (req, res) => {
     
-        PollPage.findOneAndUpdate({
+        PollPage.updateMany({
             $and: [
                 { linkId: { $eq: req.params.id } },
-                { locationId: { $eq: req.body.locationID } }
+                { locationID: { $in: req.body.locationIds } }
             ] 
         },
         {
@@ -127,16 +156,78 @@ router.put("/:id/deleteVotes", async (req, res) => {
         })
     
     // the code below sometimes fails to return updated polls, use another endpoint to retrieve most updated polls 
-    PollPage.find({
-            linkId: { $eq: req.params.id }
-    }). then( function(response) {
-        res.send(response);
-    })
+    // PollPage.find({
+    //         linkId: { $eq: req.params.id }
+    // }). then( function(response) {
+    //     res.send(response);
+    // })
 
 
 });
 
-//Twilio 
+// returns the locationIDs given linkID
+router.get("/:id/getIDsNames", async (req, res) => {
+
+    await PollPage.find({
+            linkId: { $eq: req.params.id }
+    }, 'locationID locationName'). then( function(response) {
+        // console.log(response)
+        res.send(response);
+    })
+});
+
+// returns the members given linkID
+router.get("/:id/getMembers", async (req, res) => {
+
+    await PollPage.find({
+            linkId: { $eq: req.params.id }
+    }, 'members'). then( function(response) {
+        // console.log(response);
+        res.send(response);
+    })
+});
+
+// returns the members given linkID and locationId
+router.get("/:id/:lid/getMembers", async (req, res) => {
+
+    await PollPage.find({
+        $and: [
+            { linkId: { $eq: req.params.id } },
+            { locationID: { $eq: req.params.lid } }
+        ] 
+    }, 'members'). then( function(response) {
+        // console.log(response);
+        res.send(response);
+    })
+});
+
+// returns the votes given linkID
+router.get("/:id/getVotes", async (req, res) => {
+
+    await PollPage.find({
+            linkId: { $eq: req.params.id }
+    }, 'votes'). then( function(response) {
+        // console.log(response);
+        res.send(response);
+    })
+});
+
+// returns the votes given linkID and locationId
+router.get("/:id/:lid/getVotes", async (req, res) => {
+
+    await PollPage.find({
+        $and: [
+            { linkId: { $eq: req.params.id } },
+            { locationID: { $eq: req.params.lid } }
+        ] 
+    }, 'votes'). then( function(response) {
+        // console.log(response);
+        res.send(response);
+    })
+});
+
+
+//Twilio
 // Tests router
 router.get("/testPollPage", function(req, res) {
     res.send("Hello PollPage");

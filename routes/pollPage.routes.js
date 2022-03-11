@@ -81,36 +81,9 @@ router.post("/:id/createPolls", async (req, res) => {
 
 
 // Adds/Updates vote count and members of existing Poll
-// router.put("/:id/addVotes", async (req, res) => {
-
-//     PollPage.find({
-//     $and: [
-//         { linkId: { $eq: req.params.id } },
-//         { locationID: { $in: req.body.locationIds } }, 
-//     ],
-// }, function(err, result) {
-//     console.log("here");
-//     if(err)
-//     {
-//         res.send(err);
-//     }
-//     else
-//     {
-//         console.log(result[0]);
-//         for(let i = 0; i < result.length; i++)
-//         {
-//             result[i].members.push(req.body.memberName);
-//             result[i].votes ++;
-//             console.log(result[i].members);
-//             console.log(result[i].votes);
-//         }
-//     }
-// })
-// res.send("Incremented Vote");
-
-
-// });
 router.put("/:id/addVotes", async (req, res) => {
+
+        console.log(req.body.locationIds);
 
         PollPage.updateMany({
         $and: [
@@ -122,14 +95,13 @@ router.put("/:id/addVotes", async (req, res) => {
         $inc : {votes: 1},
         $push : {"members" : req.body.memberName}
     },
-    { new: true }, 
     function(err, result) {
         if(err)
         {
             res.send(err);
         }
     })
-    res.send("Incremented Vote");
+    res.send("Votes Added");
 
 
 });
@@ -153,6 +125,10 @@ router.put("/:id/deleteVotes", async (req, res) => {
             {
                 res.send(err);
             }
+            else
+            {
+                res.send("Deleted votes");
+            }
         })
     
     // the code below sometimes fails to return updated polls, use another endpoint to retrieve most updated polls 
@@ -161,8 +137,6 @@ router.put("/:id/deleteVotes", async (req, res) => {
     // }). then( function(response) {
     //     res.send(response);
     // })
-
-
 });
 
 // returns the locationIDs given linkID

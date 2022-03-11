@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 
-
 var pollPageSchema = new mongoose.Schema ({
 
     linkId: {
@@ -19,7 +18,8 @@ var pollPageSchema = new mongoose.Schema ({
     votes: {
         type: Number,
         default: 0
-    }
+    },
 })
 
 module.exports = mongoose.model('PollPage', pollPageSchema);
+// module.exports = mongoose.model('Location', locationSchema);

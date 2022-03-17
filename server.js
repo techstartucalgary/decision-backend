@@ -19,14 +19,25 @@ app.use('/', session);
 app.use('/', location);
 app.use('/', pollPage);
 
-//Connect DB
+// Connect DB
 mongoose.connect(process.env.DATABASE_URL, {
-    useNewUrlParser: true,
-    }, 
-    () => { console.log("Mongo Connected")
-    });
+        useNewUrlParser: true,
+    }, () => { console.log("Mongo Connected")
+});
 
+// Some code to allow verbose logging of DB connection status
+let connection = mongoose.connection;
+
+connection.on('connected', () => {
+    console.log("DB connected successfully");
+})
+
+connection.on('disconnected', () => {
+    console.log("DB disconnected successfully");
+})
+
+connection.on('error', console.error.bind(console, 'Connection Error: '));
 
 app.listen(process.env.PORT, () => {
-    console.log('Listening on PORT 5000')
+    console.log('Listening on PORT 3000')
 });

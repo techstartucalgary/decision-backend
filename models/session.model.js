@@ -1,13 +1,15 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const userSchema = require('../models/user.model').schema;
 
-var sessionSchema = new mongoose.Schema({
+const sessionSchema = new mongoose.Schema({
 
     linkID: {
         type: String,
         require: true,
     },
     names: [{
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         require: true,
         unique: false
     }],

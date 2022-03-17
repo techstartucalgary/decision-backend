@@ -1,7 +1,25 @@
 const express = require('express');
-const location = require("../models/locations.model");
+const Location = require("../models/locations.model");
+const Session = require("../models/session.model");
 
 var router = express.Router();
+
+
+// finds and returns session given linkID
+async function getSession (id)
+{
+    var session;
+    await Session.findOne({
+        linkID: { $eq: id }
+    }). then(function(response)
+    {
+        // console.log(response.activities);
+        session = response; //.budget[0];
+        // console.log(budget);
+        
+    })
+    return session;
+}
 
 
 // Add a new location 
@@ -37,7 +55,7 @@ router.get("/findLocations", async (req, res) => {
     await Location.find({
         $and: [
             { budget : { $eq: req.body.budget } },
-            { category : { $in: categories }}
+            { type : { $in: categories}}
         ]
     })
     .limit(3*categories.length)
@@ -62,7 +80,7 @@ router.get("/:id/findMatchingLocations", async (req, res) => {
     var session = await getSession(req.params.id);
     // console.log(session);
     var categories = session.activities;
-    // console.log(categories);
+    console.log(categories);
     var b = session.budget;
     // console.log(b);
     
@@ -70,7 +88,7 @@ router.get("/:id/findMatchingLocations", async (req, res) => {
     await Location.find({
         $and: [
             { budget: { $eq: b[0] } },
-            { activities: { $eq: {$in: categories}}}
+            { type:  {$in: categories}}
         ]
     })
     .then(function(response)

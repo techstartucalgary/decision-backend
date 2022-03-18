@@ -1,8 +1,6 @@
 const mongoose = require('mongoose')
 
-
 var locationSchema = new mongoose.Schema ({
-
     locationName: {
         type: String,
         require: true
@@ -30,7 +28,6 @@ var locationSchema = new mongoose.Schema ({
     reviews: {
         type: Number,
     }
-    
-})
+});
 
 module.exports = mongoose.model('Location', locationSchema);

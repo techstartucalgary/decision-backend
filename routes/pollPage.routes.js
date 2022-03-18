@@ -1,4 +1,3 @@
-
 const express = require('express');
 const PollPage = require("../models/pollPage.model");
 const Location = require("../models/locations.model");
@@ -7,7 +6,6 @@ const Session = require("../models/session.model");
 var mongo = require('mongodb').MongoClient;
 
 var router = express.Router();
-
 
 // creates a new Poll document given location and link IDs
 function createPoll(loc, id)
@@ -23,7 +21,7 @@ function createPoll(loc, id)
 }
 
 // finds and returns session given linkID
-async function getSession (id)
+async function getSession(id)
 {
     var session;
     await Session.findOne({

@@ -35,7 +35,6 @@ var locationSchema = new mongoose.Schema ({
 
 
 var pollPageSchema = new mongoose.Schema ({
-
     linkId: {
         type: String,
         require: true
@@ -58,5 +57,5 @@ var pollPageSchema = new mongoose.Schema ({
     }
 })
 
+
 module.exports = mongoose.model('PollPage', pollPageSchema);
-// module.exports = mongoose.model('Location', locationSchema);

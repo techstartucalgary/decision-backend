@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 // Define Schema userSchema 
 const userSchema = new mongoose.Schema ({
-        linkId: {
+
+        linkID: {
             type: String,
             require: true
         },
@@ -11,13 +12,14 @@ const userSchema = new mongoose.Schema ({
             min: 3,
             require: true
         },
-        userId: {
-            type: String,
-            require: true
+        votes: {
+            type: [String],
+            require: false
         },
         creator: {
             type: Boolean
         }
+        
 });
 
 // Create model User from Schema userSchema 

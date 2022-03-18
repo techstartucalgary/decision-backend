@@ -7,7 +7,7 @@ const Session = require("../models/session.model");
 const User = require("../models/user.model");
 
 // utility function -> generate random ID
-const createID = function () {
+const createSessionID = function () {
     return Math.random().toString(36).substring(2,7)
 };
 
@@ -19,15 +19,12 @@ const createID = function () {
 router.post("/", async (req, res) => {
 
     // create session ID
-    const link_ID = createID();
-    // create user ID
-    const user_ID = createID();
+    const link_ID = createSessionID();
 
     // create User
     const newUser = new User({
         linkID: link_ID,
-        userName: req.body.names,
-        userID: user_ID,
+        userName: req.body.name,
         creator: true
     })
 
@@ -36,15 +33,12 @@ router.post("/", async (req, res) => {
         if (err) {
             throw err;
         }
-        // testing stuff
-        console.log("New User created");
-        console.log(data);
     });
 
     // create Session 
     const newSession = new Session({
-        names: newUser,
         linkID: link_ID,
+        names: newUser,
         budget: req.body.budget,
         activities: req.body.activities
     });
@@ -54,11 +48,12 @@ router.post("/", async (req, res) => {
         if (err) {
             throw err;
         }
-        // testing stuff
-        console.log("New Session created");
-        console.log(data);
-
-        res.json(data.linkID);
+        res.cookie('UserID', String(newUser._id));
+        res.cookie('SessionID', String(link_ID));
+        res.cookie('Creator', 'true');
+        res.cookie({maxAge: 172800000});
+    
+        res.status(200).json(data).send();
     });   
     
     // add reroute to create session
@@ -70,14 +65,10 @@ router.put("/:id", async (req, res) => {
     // get data from request headers
     link_ID = req.params.id;
 
-    // create user ID
-    user_ID = createID();
-
     // create User
     const newUser = new User({
         linkID: link_ID,
         userName: req.body.name,
-        userID: user_ID,
         creator: false
     });
 
@@ -86,7 +77,6 @@ router.put("/:id", async (req, res) => {
         if (err) {
             throw err;
         }
-        res.json(data);
     })
 
     // find Session by ID and add new User to names
@@ -95,7 +85,12 @@ router.put("/:id", async (req, res) => {
         { $push : { names : newUser } }
     );
 
-    console.log('Added User and Parameters');
+    res.cookie('UserID', String(newUser._id));
+    res.cookie('SessionID', String(link_ID));
+    res.cookie('Creator', 'false');
+    res.cookie({maxAge: 172800000});
+
+    res.status(200).json(data).send();
 });
 
 // Method to update users parameters
@@ -104,17 +99,17 @@ router.delete("/:id", async (req, res) => {
     // get data from request headers
     link_ID = req.params.id;
 
-    user_Name = req.body.name;
-    user_ID = req.body.ID;
+    // find User by using linkID
+    await User.findOne(
+        { linkID : link_ID }, (err, data) => {
+            user_ID = data._id;
+        }
+    );
 
     // remove User from collection
     await User.deleteOne( 
-        { userID : user_ID }
+        { _id : user_ID }
     );
-
-    // testing stuff
-    console.log("User deleted");
-    console.log(user_Name);
 
     // remove User from Session
     await Session.findOneAndDelete(
@@ -122,13 +117,9 @@ router.delete("/:id", async (req, res) => {
         { $pop   : { names : user_ID } }
     );
 
-    // testing stuff
-    console.log("User removed from Session");
-    console.log(userName);
-
-    res.send('Deleted User and Parameters');
+    res.send();
 });
 
 module.exports = router;
 
-// { linkID : "0dqn4" }
+// { linkID : "tx2kh" }

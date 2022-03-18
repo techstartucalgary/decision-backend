@@ -35,7 +35,6 @@ router.post("/", async (req, res) => {
         if (err) {
             throw err;
         }
-        res.json(data);
     });
 
     // create Session 
@@ -51,7 +50,7 @@ router.post("/", async (req, res) => {
         if (err) {
             throw err;
         }
-        res.json(data.linkID);
+        res.json(data);
     });   
     
     // add reroute to create session

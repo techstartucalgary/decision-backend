@@ -20,4 +20,5 @@ var pollPageSchema = new mongoose.Schema ({
     }
 });
 
+
 module.exports = mongoose.model('PollPage', pollPageSchema);

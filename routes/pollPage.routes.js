@@ -10,11 +10,10 @@ var router = express.Router();
 // creates a new Poll document given location and link IDs
 function createPoll(loc, id)
 {
-    const poll = new PollPage ( {
+    const poll = new PollPage({
         linkId: id,
         locationId: loc._id,
         locationName: loc.locationName
-
     });
     poll.save();
 }

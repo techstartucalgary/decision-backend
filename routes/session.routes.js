@@ -1,4 +1,4 @@
-// express
+// express stuff
 const express = require('express');
 const router = express.Router();
 
@@ -14,7 +14,8 @@ const createID = function () {
 // CREATE NEW SESSION (User Presses generatelink)
 // link_ID -> internal SESSION generated link_ID
 // linkID -> value being sent to DB
-// same for user_ID and userID
+// user_ID -> internal SESSION generated user_ID
+// userID -> value being sent to DB
 router.post("/", async (req, res) => {
 
     // create session ID
@@ -24,9 +25,9 @@ router.post("/", async (req, res) => {
 
     // create User
     const newUser = new User({
-        linkId: link_ID,
+        linkID: link_ID,
         userName: req.body.names,
-        userId: user_ID,
+        userID: user_ID,
         creator: true
     })
 
@@ -35,7 +36,9 @@ router.post("/", async (req, res) => {
         if (err) {
             throw err;
         }
-        res.json(data);
+        // testing stuff
+        console.log("New User created");
+        console.log(data);
     });
 
     // create Session 
@@ -51,6 +54,10 @@ router.post("/", async (req, res) => {
         if (err) {
             throw err;
         }
+        // testing stuff
+        console.log("New Session created");
+        console.log(data);
+
         res.json(data.linkID);
     });   
     
@@ -68,9 +75,9 @@ router.put("/:id", async (req, res) => {
 
     // create User
     const newUser = new User({
-        linkId: link_ID,
+        linkID: link_ID,
         userName: req.body.name,
-        userId: user_ID,
+        userID: user_ID,
         creator: false
     });
 
@@ -97,14 +104,31 @@ router.delete("/:id", async (req, res) => {
     // get data from request headers
     link_ID = req.params.id;
 
-    userName = req.body.name;
+    user_Name = req.body.name;
+    user_ID = req.body.ID;
 
     // remove User from collection
     await User.deleteOne( 
-        { linkID: link_ID }
+        { userID : user_ID }
     );
+
+    // testing stuff
+    console.log("User deleted");
+    console.log(user_Name);
+
+    // remove User from Session
+    await Session.findOneAndDelete(
+        { linkID : link_ID },
+        { $pop   : { names : user_ID } }
+    );
+
+    // testing stuff
+    console.log("User removed from Session");
+    console.log(userName);
 
     res.send('Deleted User and Parameters');
 });
 
 module.exports = router;
+
+// { linkID : "0dqn4" }

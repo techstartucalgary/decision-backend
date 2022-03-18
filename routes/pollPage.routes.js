@@ -102,6 +102,7 @@ router.put("/:id/addVotes", async (req, res) => {
         }
     })
     res.send("Votes Added");
+    res.cookie("userID", user_ID, {maxAge: 900000});
 
 
 });
@@ -130,6 +131,8 @@ router.put("/:id/deleteVotes", async (req, res) => {
                 res.send("Deleted votes");
             }
         })
+    res.cookie("userID", user_ID, {maxAge: 900000});
+
     
     // the code below sometimes fails to return updated polls, use another endpoint to retrieve most updated polls 
     // PollPage.find({

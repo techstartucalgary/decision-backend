@@ -1,5 +1,6 @@
 // express stuff
 const express = require('express');
+const { cookie } = require('express/lib/response');
 const router = express.Router();
 
 // models
@@ -31,6 +32,7 @@ router.post("/", async (req, res) => {
     // add User to collection
     await newUser.save((err, data) => {
         if (err) {
+            res.status(500).json(data);
             throw err;
         }
     });
@@ -44,19 +46,21 @@ router.post("/", async (req, res) => {
     });
 
     // add Session to collection
-    newSession.save((err, data) => {
+    await newSession.save((err, data) => {
         if (err) {
+            res.status(500).json(data);
             throw err;
         }
-        res.cookie('UserID', String(newUser._id));
-        res.cookie('SessionID', String(link_ID));
-        res.cookie('Creator', 'true');
-        res.cookie({maxAge: 172800000});
+
+        // set cookies
+        res.cookie('userID', String(newUser._id), {maxAge: 172800000});
+        res.cookie('sessionID', String(link_ID), {maxAge: 172800000});
+        res.cookie('creator', 'true', {maxAge: 172800000});
     
         res.status(200).json(data).send();
     });   
     
-    // add reroute to create session
+    // add reroute to created session
 });
 
 // Add new User to existing poll
@@ -65,7 +69,18 @@ router.put("/:id", async (req, res) => {
     // get data from request headers
     link_ID = req.params.id;
 
-    // create User
+    // see if Session exists 
+    const sessionExists = await Session.exists({ linkID : "af2ca" });
+    console.log(sessionExists);
+    
+    // if session doesn't exist
+    if (!sessionExists) {
+        res.status(403);
+        res.json({ "shoi": "na mama hoilo na beparta" }).send(sessionExists);
+        throw err;
+    }
+
+    // if session does exist
     const newUser = new User({
         linkID: link_ID,
         userName: req.body.name,
@@ -77,20 +92,20 @@ router.put("/:id", async (req, res) => {
         if (err) {
             throw err;
         }
-    })
+    });
 
     // find Session by ID and add new User to names
-    await Session.findOneAndUpdate( 
-        { linkID : link_ID },
-        { $push : { names : newUser } }
+    await Session.findOneAndUpdate(
+        { linkID: link_ID },
+        { $push: { names: newUser } }
     );
 
-    res.cookie('UserID', String(newUser._id));
-    res.cookie('SessionID', String(link_ID));
-    res.cookie('Creator', 'false');
-    res.cookie({maxAge: 172800000});
+    // set cookies
+    res.cookie('userID', String(newUser._id), { maxAge: 172800000 });
+    res.cookie('sessionID', String(link_ID), { maxAge: 172800000 });
+    res.cookie('creator', 'false', { maxAge: 172800000 });
 
-    res.status(200).json(data).send();
+    res.status(200).json({ "shoi": "mama beparta bhalo laglo" }).send();
 });
 
 // Method to update users parameters
@@ -98,6 +113,8 @@ router.delete("/:id", async (req, res) => {
     
     // get data from request headers
     link_ID = req.params.id;
+
+    // see if Session exists
 
     // find User by using linkID
     await User.findOne(
@@ -117,9 +134,14 @@ router.delete("/:id", async (req, res) => {
         { $pop   : { names : user_ID } }
     );
 
-    res.send();
+    // remove cookies
+    res.clearCookie('userID');
+    res.clearCookie('sessionID');
+    res.clearCookie('creator');
+
+    res.status(200).send("User deleted");
 });
 
 module.exports = router;
 
-// { linkID : "tx2kh" }
+// { linkID : "af2ca" }

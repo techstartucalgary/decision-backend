@@ -13,7 +13,8 @@ function createPoll(loc, id)
     const poll = new PollPage ( {
         linkId: id,
         locationID: loc._id,
-        locationName: loc.locationName
+        locationName: loc.locationName,
+        locationDetails: loc
 
     });
     poll.save();
@@ -40,7 +41,7 @@ router.get("/:id/getPolls", async (req, res) => {
 
     await PollPage.find({
             linkId: { $eq: req.params.id }
-    }). then( function(response) {
+    }). sort({votes: -1}).then( function(response) {
         res.send(response);
     })
 });
@@ -51,6 +52,7 @@ router.post("/:id/createPolls", async (req, res) => {
     var session = await getSession(req.params.id);
     var categories = session.activities;
     var b = session.budget;
+    var location;
     console.log(categories);
     let poll = new PollPage();
     await Location.find({
@@ -100,6 +102,7 @@ router.put("/:id/addVotes", async (req, res) => {
         }
     })
     res.send("Votes Added");
+    res.cookie("userID", user_ID, {maxAge: 900000});
 
 
 });
@@ -128,6 +131,8 @@ router.put("/:id/deleteVotes", async (req, res) => {
                 res.send("Deleted votes");
             }
         })
+    res.cookie("userID", user_ID, {maxAge: 900000});
+
     
     // the code below sometimes fails to return updated polls, use another endpoint to retrieve most updated polls 
     // PollPage.find({

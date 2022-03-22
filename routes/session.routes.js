@@ -53,6 +53,7 @@ router.post("/", async (req, res) => {
         res.json(data);
     });   
     
+    res.cookie("userID", user_ID);
     // add reroute to create session
 });
 

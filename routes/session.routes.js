@@ -68,44 +68,45 @@ router.put("/:id", async (req, res) => {
 
     // get data from request headers
     link_ID = req.params.id;
+    console.log(link_ID);
+    console.log(typeof link_ID);
 
     // see if Session exists 
-    const sessionExists = await Session.exists({ linkID : "af2ca" });
-    console.log(sessionExists);
+    const sessionExists = await Session.exists({ linkID : "tx2kh" });
     
     // if session doesn't exist
     if (!sessionExists) {
         res.status(403);
-        res.json({ "shoi": "na mama hoilo na beparta" }).send(sessionExists);
-        throw err;
+        res.json({ "shoi": "na mama hoilo na beparta" });
     }
+    else {
+        // if session does exist
+        const newUser = new User({
+            linkID: link_ID,
+            userName: req.body.name,
+            creator: false
+        });
 
-    // if session does exist
-    const newUser = new User({
-        linkID: link_ID,
-        userName: req.body.name,
-        creator: false
-    });
+        // add User to collection
+        await newUser.save((err, data) => {
+            if (err) {
+                throw err;
+            }
+        });
 
-    // add User to collection
-    await newUser.save((err, data) => {
-        if (err) {
-            throw err;
-        }
-    });
+        // find Session by ID and add new User to names
+        await Session.findOneAndUpdate(
+            { linkID: link_ID },
+            { $push: { names: newUser } }
+        );
 
-    // find Session by ID and add new User to names
-    await Session.findOneAndUpdate(
-        { linkID: link_ID },
-        { $push: { names: newUser } }
-    );
+        // set cookies
+        res.cookie('userID', String(newUser._id), { maxAge: 172800000 });
+        res.cookie('sessionID', String(link_ID), { maxAge: 172800000 });
+        res.cookie('creator', 'false', { maxAge: 172800000 });
 
-    // set cookies
-    res.cookie('userID', String(newUser._id), { maxAge: 172800000 });
-    res.cookie('sessionID', String(link_ID), { maxAge: 172800000 });
-    res.cookie('creator', 'false', { maxAge: 172800000 });
-
-    res.status(200).json({ "shoi": "mama beparta bhalo laglo" }).send();
+        res.status(200).json({ "shoi": "mama beparta bhalo laglo" }).send();
+    }
 });
 
 // Method to update users parameters
@@ -114,7 +115,8 @@ router.delete("/:id", async (req, res) => {
     // get data from request headers
     link_ID = req.params.id;
 
-    // see if Session exists
+    // see if User exists
+    // const userExists
 
     // find User by using linkID
     await User.findOne(
@@ -144,4 +146,4 @@ router.delete("/:id", async (req, res) => {
 
 module.exports = router;
 
-// { linkID : "af2ca" }
+// { linkID : "" }

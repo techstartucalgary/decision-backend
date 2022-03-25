@@ -2,6 +2,7 @@ const express = require('express');
 const PollPage = require("../models/pollPage.model");
 const Location = require("../models/locations.model");
 const Session = require("../models/session.model");
+const User = require("../models/user.model");
 
 var mongo = require('mongodb').MongoClient;
 
@@ -34,6 +35,43 @@ async function getSession(id)
         
     })
     return session;
+}
+
+
+// returns user's votes given userID
+// async function findUserVotes(userId)
+// {
+//     await User.findOne({
+//         userId: { $eq: userId }  
+//     }). then(function(response)
+//     {
+//        //  console.log(response);
+//         return response;
+
+//     })
+// }
+
+
+// update user's location votes
+function updateUserVotes(userID, locationIDs) 
+{
+    User.findOneAndUpdate({
+        userId: { $eq: userID }  
+    }, 
+    {
+        $push : {locationVotes: {$each: locationIDs}}
+    },
+    function(err, result) {
+        if(err)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    })
+
 }
 
 // returns the polls of given linkID
@@ -83,17 +121,160 @@ router.post("/:id/createPolls", async (req, res) => {
 // Adds/Updates vote count and members of existing Poll
 router.put("/:id/addVotes", async (req, res) => {
 
-        console.log(req.body.locationIds);
+    var locIds = req.body.locationIds;
+    var validLocations = [];
 
-        PollPage.updateMany({
+    // find valid locations
+    await User.findOne({
         $and: [
             { linkId: { $eq: req.params.id } },
-            { locationID: { $in: req.body.locationIds } }, 
-        ],
-    },
+            { userId: { $eq: req.body.userId } }, 
+        ],  
+    }). then(function(response) 
     {
-        $inc : {votes: 1},
-        $push : {"members" : req.body.memberName}
+        // console.log("Location Votes:")
+        // console.log(response.locationVotes);
+        if(response == null)
+        {
+            res.send("Cannot find User");
+        }
+        else
+        {
+            // console.log(response);
+            if(response.locationVotes.length == 0)
+            {
+                validLocations = req.body.locationIds;
+            }
+            else
+            {
+                var check = false;
+                // console.log(locIds[0] == response.locationVotes[0]);
+                for(let i = 0; i < locIds.length; i++)
+                {
+                    for(let j = 0; j < response.locationVotes.length; j++)
+                    {
+                        if(locIds[i] == response.locationVotes[j])
+                        {
+                            check = true;    
+                        }
+                    }
+                    if(check == false)
+                    {
+                        validLocations.push(locIds[i]);
+                    }
+                    check = false;
+                }
+            }
+            // console.log("Valid locations:");
+            // console.log(validLocations);
+        }
+
+    })
+
+    if(validLocations.length > 0)
+    {
+        // update user's location votes
+        User.findOneAndUpdate({
+            $and: [
+                { linkId: { $eq: req.params.id } },
+                { userId: { $eq: req.body.userId } }, 
+            ],
+        }, 
+        {
+            $push : {locationVotes: {$each: validLocations}}
+        },
+        function(err, result) {
+            if(err)
+            {
+                res.send(err);
+            }
+        })
+        
+        // update votes of valid locations in pollPage
+        PollPage.updateMany({
+            $and: [
+                { linkId: { $eq: req.params.id } },
+                { locationID: { $in: validLocations } }, 
+            ],
+        },
+        {
+            $inc : {votes: 1}
+        },
+        function(err, result) {
+            if(err)
+            {
+                res.send(err);
+            }
+        })
+        res.send("Votes Added");
+    }
+    else
+    {
+        res.send("No valid locationIds found");
+    }
+});
+
+// Deletes members and updates vote count of existing Poll given linkID
+router.put("/:id/deleteVotes", async (req, res) => {
+
+    var locIds = req.body.locationIds;
+    var validLocations = [];
+
+    // match locations
+    await User.findOne({
+        $and: [
+            { linkId: { $eq: req.params.id } },
+            { userId: { $eq: req.body.userId } }, 
+        ],  
+    }). then(function(response) 
+    {
+        // console.log("Location Votes:")
+        // console.log(response.locationVotes);
+        if(response == null)
+        {
+            res.send("Cannot find User");
+        }
+        else
+        {
+            // console.log(response);
+            if(response.locationVotes.length == 0)
+            {
+                res.send("Cannot delete votes");
+            }
+            else
+            {
+                var check = false;
+                // console.log(locIds[0] == response.locationVotes[0]);
+                for(let i = 0; i < locIds.length; i++)
+                {
+                    for(let j = 0; j < response.locationVotes.length; j++)
+                    {
+                        if(locIds[i] == response.locationVotes[j])
+                        {
+                            check = true;  
+                        }
+                    }
+                    if(check == true)
+                    {
+                        validLocations.push(locIds[i]);
+                    }
+                    check = false;
+                }
+            }
+            // console.log("Valid locations:");
+            // console.log(validLocations);
+        }
+    })
+
+    // update user's location votes
+    User.findOneAndUpdate({
+        $and: [
+            { linkId: { $eq: req.params.id } },
+            { userId: { $eq: req.body.userId } }, 
+        ],
+    }, 
+    {
+        $pull : {locationVotes: {$in: validLocations}}
     },
     function(err, result) {
         if(err)
@@ -101,45 +282,29 @@ router.put("/:id/addVotes", async (req, res) => {
             res.send(err);
         }
     })
-    res.send("Votes Added");
-    res.cookie("userID", user_ID, {maxAge: 900000});
-
-
-});
-
-// Deletes members and updates vote count of existing Poll given linkID
-router.put("/:id/deleteVotes", async (req, res) => {
     
-        PollPage.updateMany({
-            $and: [
-                { linkId: { $eq: req.params.id } },
-                { locationID: { $in: req.body.locationIds } }
-            ] 
-        },
+    // update votes of valid locations in pollPage
+    PollPage.updateMany({
+        $and: [
+            { linkId: { $eq: req.params.id } },
+            { locationID: { $in: validLocations } }
+        ] 
+    },
+    {
+        $inc : {"votes" : -1},
+        $pull : {"members" : req.body.memberName}
+    }, {
+        new: true
+    }, function(err, result) {
+        if(err)
         {
-            $inc : {"votes" : -1},
-            $pull : {"members" : req.body.memberName}
-        }, {
-            new: true
-        }, function(err, result) {
-            if(err)
-            {
-                res.send(err);
-            }
-            else
-            {
-                res.send("Deleted votes");
-            }
-        })
-    res.cookie("userID", user_ID, {maxAge: 900000});
-
-    
-    // the code below sometimes fails to return updated polls, use another endpoint to retrieve most updated polls 
-    // PollPage.find({
-    //         linkId: { $eq: req.params.id }
-    // }). then( function(response) {
-    //     res.send(response);
-    // })
+            res.send(err);
+        }
+        else
+        {
+            res.send("Deleted votes");
+        }
+    })
 });
 
 // returns the locationIDs given linkID

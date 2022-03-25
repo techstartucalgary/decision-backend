@@ -79,7 +79,7 @@ router.put("/:id", async (req, res) => {
         if (err) {
             throw err;
         }
-        res.json(data);
+        // res.json(data);
     })
 
     // find Session by ID and add new User to names
@@ -89,6 +89,7 @@ router.put("/:id", async (req, res) => {
     );
 
     console.log('Added User and Parameters');
+    res.cookie("userID", user_ID);
 });
 
 // Method to update users parameters

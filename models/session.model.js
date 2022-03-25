@@ -7,17 +7,17 @@ const sessionSchema = new mongoose.Schema({
         type: String,
         require: true,
     },
-    names: [{
-        type: mongoose.Schema.Types.ObjectId,
+    names: {
+        type: [mongoose.Schema.Types.ObjectId],
         ref: 'User',
         require: true,
         unique: false
-    }],
-    budget: [{
+    },
+    budget: {
         type: String,
         require: true,
         unique: false
-    }],
+    },
     activities: [{
         type: String,
     }],

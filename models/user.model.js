@@ -7,6 +7,10 @@ const userSchema = new mongoose.Schema ({
             type: String,
             require: true
         },
+        userID: {
+            type: String,
+            require: true
+        },
         userName: {
             type: String,
             min: 3,
@@ -19,7 +23,7 @@ const userSchema = new mongoose.Schema ({
         creator: {
             type: Boolean
         }
-        
+
 });
 
 // Create model User from Schema userSchema 

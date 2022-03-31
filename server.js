@@ -40,6 +40,7 @@ connection.on('disconnected', () => {
 
 connection.on('error', console.error.bind(console, 'Connection Error: '));
 
-app.listen(process.env.PORT, () => {
-    console.log('Listening on PORT 3000')
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+    console.log(`Listening on PORT ${PORT}`)
 });

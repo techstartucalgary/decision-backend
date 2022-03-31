@@ -49,11 +49,11 @@ router.post("/", async (req, res) => {
     newSession.save((err, data) => {
         if (err) {
             throw err;
-        }
-        res.json(data);
+        }   
+        res.cookie("userID", user_ID);
+        res.json(data); 
     });   
-    
-    res.cookie("userID", user_ID);
+
     // add reroute to create session
 });
 
@@ -79,7 +79,6 @@ router.put("/:id", async (req, res) => {
         if (err) {
             throw err;
         }
-        res.json(data);
     })
 
     // find Session by ID and add new User to names
@@ -87,8 +86,9 @@ router.put("/:id", async (req, res) => {
         { linkID : link_ID },
         { $push : { names : newUser } }
     );
-
+    res.cookie("userID", user_ID);
     console.log('Added User and Parameters');
+    res.send('Added User')
 });
 
 // Method to update users parameters

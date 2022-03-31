@@ -17,7 +17,8 @@ const userSchema = new mongoose.Schema ({
         },
         creator: {
             type: Boolean
-        }
+        },
+        locationVotes: [{type: String}]
 });
 
 // Create model User from Schema userSchema 

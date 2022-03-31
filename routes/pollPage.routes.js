@@ -210,7 +210,7 @@ router.put("/:id/addVotes", async (req, res) => {
     }
     else
     {
-        res.send("No valid locationIds found");
+        res.send("You have already voted for one or more locations");
     }
 });
 

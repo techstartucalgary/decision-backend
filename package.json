@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Tech-Start-UCalgary/decision-backend#readme",
   "dependencies": {
+    "@googlemaps/google-maps-services-js": "^3.3.12",
     "body-parser": "^1.19.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",

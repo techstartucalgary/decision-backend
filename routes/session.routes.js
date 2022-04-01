@@ -1,15 +1,63 @@
 // express
 const express = require('express');
 const router = express.Router();
+const {Client, PlaceInputType} = require("@googlemaps/google-maps-services-js");
 
 // models
 const Session = require("../models/session.model");
 const User = require("../models/user.model");
 
+const googleClient = new Client({});
+
 // utility function -> generate random ID
 const createID = function () {
     return Math.random().toString(36).substring(2,7)
 };
+
+const getLocationIDs = async function () {
+
+    const params = {
+        input: "Bars, Restaurants, Shopping",
+        minPriceLevel: 0,
+        maxPriceLevel: 2,
+        openNow: true,
+        key: process.env.API_KEY,
+    };
+
+    const r = await googleClient.textSearch({ 
+        params: params,
+        timeout: 1000
+    });
+
+    var placeIDs = r.data.results.map(function(inputs) {
+        return inputs.place_id;
+    })
+
+    console.log(r.data);
+
+    return placeIDs;
+
+};
+
+const getPlaceDetails = async function () {
+
+    const params = {
+        placeid: 'ChIJw_hCeOFvcVMRuvxWSfd8V_s',
+        fields: ["name", "price_level", "place_id", "price_level", "rating", "user_ratings_total", "types"],
+        key: process.env.API_KEY
+ //       Name, budget, type, location, distance, description, rating, reviews
+    }
+
+    const r = await googleClient.placeDetails({
+        params: params,
+        timeout: 1000
+     });
+    console.log("ASDJKHASDKJHASD");
+
+    console.log(r.data)
+}
+
+
 
 // CREATE NEW SESSION (User Presses generatelink)
 // link_ID -> internal SESSION generated link_ID
@@ -53,6 +101,11 @@ router.post("/", async (req, res) => {
         res.cookie("userID", user_ID);
         res.json(data); 
     });   
+
+    var place_ids = await getLocationIDs();
+
+    getPlaceDetails();
+
 
     // add reroute to create session
 });

@@ -15,13 +15,10 @@ var locationSchema = new mongoose.Schema ({
         type: String,
         require: true
     },
-    location: {
+    address: {
         type: String,
     },
-    distance: {
-        type: String,
-    },
-    description: {
+    website: {
         type: String,
     },
     rating: {

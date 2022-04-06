@@ -16,10 +16,7 @@ var locationSchema = new mongoose.Schema ({
     location: {
         type: String,
     },
-    distance: {
-        type: String,
-    },
-    description: {
+    website: {
         type: String,
     },
     rating: {

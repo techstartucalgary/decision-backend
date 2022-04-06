@@ -6,6 +6,10 @@ const {Client, PlaceInputType} = require("@googlemaps/google-maps-services-js");
 // models
 const Session = require("../models/session.model");
 const User = require("../models/user.model");
+const PollPage = require("../models/pollPage.model");
+
+const { response } = require('express');
+const { location } = require('express/lib/response');
 
 const googleClient = new Client({});
 
@@ -14,48 +18,186 @@ const createID = function () {
     return Math.random().toString(36).substring(2,7)
 };
 
-const getLocationIDs = async function () {
 
-    const params = {
-        input: "Bars, Restaurants, Shopping",
+router.get("/testApi", async (req, res) =>{
+    var cat = ["Shopping", "Cafe"];
+    var location_data = await getLocationIDs(cat, 2);
+    console.log(location_data);
+    var location_details = await getPlaceDetails(location_data);
+    res.send("Done");
+    console.log("Locations:");
+    console.log(location_details);
+
+
+    
+})
+
+const getLocationIDs = async function (categories, budget) {
+
+    var placeIds = [];
+    // var priceLevels = [];
+    var params = {
+        input: "",
         minPriceLevel: 0,
-        maxPriceLevel: 2,
+        maxPriceLevel: 0,
         openNow: true,
         key: process.env.API_KEY,
     };
 
-    const r = await googleClient.textSearch({ 
-        params: params,
-        timeout: 1000
-    });
+    var r = [];
 
-    var placeIDs = r.data.results.map(function(inputs) {
-        return inputs.place_id;
-    })
+    for(let i = 0; i < categories.length; i++)
+    {
+        params = {
+            input: categories[i],
+            minPriceLevel: 0,
+            maxPriceLevel: budget,
+            openNow: true,
+            key: process.env.API_KEY,
+        }
 
-    console.log(r.data);
+        r = await googleClient.textSearch({ 
+            params: params,
+            timeout: 1000
+        });
 
-    return placeIDs;
+        var info = r.data.results;
+    
+        var placeIDs = r.data.results.map(function(inputs) {
+            return inputs.place_id;
+        })
+
+        if(info.length > 3)
+        {
+            placeIDs.splice(3, placeIDs.length-1);
+        //    //  price_levels.splice(3, price_levels.length-1);
+            placeIds.push(placeIDs);
+            // priceLevels.push(price_levels);
+            // info.splice(3, info.length-1);
+            // placeIds.push(info);
+        }
+        else
+        {
+            placeIds.push(placeIDs);
+            // priceLevels.push(price_levels);
+            // placeIds.push(info);
+        }
+        
+        // console.log(r.data);
+
+    }
+    // console.log("HELLO");
+    // console.log(placeIds);
+    // console.log(r.data);
+    // var info = [placeIds, priceLevels]
+    return placeIds;
 
 };
 
-const getPlaceDetails = async function () {
+const getPlaceDetails = async function (place_ids) {
 
-    const params = {
-        placeid: 'ChIJw_hCeOFvcVMRuvxWSfd8V_s',
-        fields: ["name", "price_level", "place_id", "price_level", "rating", "user_ratings_total", "types"],
+    var locationDetails = [];
+
+    var params = {
+        placeid: '',
+        fields: ["name", "price_level", "place_id", "formatted_address", "rating", "types", "website", "reviews"],
         key: process.env.API_KEY
- //       Name, budget, type, location, distance, description, rating, reviews
     }
 
-    const r = await googleClient.placeDetails({
-        params: params,
-        timeout: 1000
-     });
-    console.log("ASDJKHASDKJHASD");
+    var r = [];
 
-    console.log(r.data)
+    for(let i = 0; i < place_ids.length; i++)
+    {
+        var loc_details = [];
+        var location = {
+            locationName: '',
+            locationID: '',
+            budget: '',
+            type: '',
+            address: '',
+            website: '',
+            rating: '',
+            reviews: ''
+        }
+        for(let j = 0; j < place_ids[i].length; j++)
+        {
+            params = {
+                placeid: place_ids[i][j],
+                fields: ["name", "price_level", "place_id", "formatted_address", "rating", "types", "website", "reviews"],
+                key: process.env.API_KEY
+            }
+            r = await googleClient.placeDetails({
+                params: params,
+                timeout: 1000
+            });
+            location = {
+                locationName: r.data.result.name,
+                locationID: r.data.result.place_id,
+                budget: r.data.result.price_level,
+                type: r.data.result.types.toString(),
+                address: r.data.result.formatted_address,
+                website: r.data.result.website,
+                rating: r.data.result.rating,
+                reviews: r.data.result.reviews.length
+            }
+            // console.log(r.data.result);
+            loc_details.push(location);
+        }
+        locationDetails.push(loc_details);
+        
+    }    
+    // console.log(locationDetails);
+    return locationDetails;
+    // console.log(r.data)
 }
+
+// creates a new Poll document given location and link IDs
+function createPoll(loc, id)
+{
+    const poll = new PollPage ( {
+        linkId: id,
+        locationID: loc.locationID,
+        locationName: loc.locationName,
+        locationDetails: loc,
+    });
+    poll.save();
+}
+
+// Method to update users parameters
+router.delete("/deleteEverything/:id", async (req, res) => {
+    
+    // get data from request headers
+    link_ID = req.params.id;
+
+    // remove User from collection
+    Session.deleteOne( 
+        { linkID: { $eq: link_ID} }
+    ).then (function(response) {
+
+        console.log("deleted session");
+
+    });
+
+    // remove User from collection
+    User.deleteOne( 
+        { linkId: { $eq: link_ID} }
+    ).then (function(response) {
+
+        console.log("deleted user");
+
+    });
+
+    // remove User from collection
+    PollPage.deleteOne( 
+        { linkId: { $eq: link_ID} }
+    ).then (function(response) {
+
+        console.log("deleted pollpage");
+
+    });
+
+    res.send('Deleted Everything');
+});
 
 
 
@@ -102,9 +244,23 @@ router.post("/", async (req, res) => {
         res.json(data); 
     });   
 
-    var place_ids = await getLocationIDs();
+    var placeIds = await getLocationIDs(req.body.activities, req.body.budget);
+    console.log("Place IDs:");
+    console.log(placeIds);
+    // console.log(placeIds.length);
+    // console.log(placeIds[0].length);
+    var location_details = await getPlaceDetails(placeIds);
+    console.log("Location Details:");
+    console.log(location_details);
 
-    getPlaceDetails();
+    for(let i = 0; i < placeIds.length; i++)
+    {
+        for(let j = 0; j < placeIds[i].length; j++)
+        {
+            createPoll(location_details[i][j], link_ID);
+        }
+    }
+    console.log("Done!");
 
 
     // add reroute to create session

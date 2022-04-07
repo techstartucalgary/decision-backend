@@ -22,11 +22,9 @@ const createID = function () {
 router.get("/testApi", async (req, res) =>{
     var cat = ["Shopping", "Cafe"];
     var location_data = await getLocationIDs(cat, 2);
-    console.log(location_data);
     var location_details = await getPlaceDetails(location_data);
     res.send("Done");
-    console.log("Locations:");
-    console.log(location_details);
+
 
 
     
@@ -45,7 +43,6 @@ const getLocationIDs = async function (categories, budget) {
     };
 
     var r = [];
-
     for(let i = 0; i < categories.length; i++)
     {
         params = {
@@ -72,24 +69,15 @@ const getLocationIDs = async function (categories, budget) {
             placeIDs.splice(3, placeIDs.length-1);
         //    //  price_levels.splice(3, price_levels.length-1);
             placeIds.push(placeIDs);
-            // priceLevels.push(price_levels);
-            // info.splice(3, info.length-1);
-            // placeIds.push(info);
+
         }
         else
         {
             placeIds.push(placeIDs);
-            // priceLevels.push(price_levels);
-            // placeIds.push(info);
+
         }
         
-        // console.log(r.data);
-
     }
-    // console.log("HELLO");
-    // console.log(placeIds);
-    // console.log(r.data);
-    // var info = [placeIds, priceLevels]
     return placeIds;
 
 };
@@ -123,7 +111,7 @@ const getPlaceDetails = async function (place_ids) {
         {
             params = {
                 placeid: place_ids[i][j],
-                fields: ["name", "price_level", "place_id", "formatted_address", "rating", "types", "website", "reviews"],
+                fields: ["name", "price_level", "place_id", "formatted_address", "rating", "types", "website", "user_ratings_total"],
                 key: process.env.API_KEY
             }
             r = await googleClient.placeDetails({
@@ -138,7 +126,7 @@ const getPlaceDetails = async function (place_ids) {
                 address: r.data.result.formatted_address,
                 website: r.data.result.website,
                 rating: r.data.result.rating,
-                reviews: r.data.result.reviews.length
+                reviews: r.data.result.user_ratings_total
             }
             // console.log(r.data.result);
             loc_details.push(location);
@@ -152,7 +140,7 @@ const getPlaceDetails = async function (place_ids) {
 }
 
 // creates a new Poll document given location and link IDs
-function createPoll(loc, id)
+async function createPoll(loc, id)
 {
     const poll = new PollPage ( {
         linkId: id,
@@ -160,7 +148,7 @@ function createPoll(loc, id)
         locationName: loc.locationName,
         locationDetails: loc,
     });
-    poll.save();
+    await poll.save();
 }
 
 // Method to update users parameters
@@ -171,7 +159,7 @@ router.delete("/deleteEverything/:id", async (req, res) => {
 
     // remove User from collection
     Session.deleteOne( 
-        { linkID: { $eq: link_ID} }
+        { linkId: { $eq: link_ID} }
     ).then (function(response) {
 
         console.log("deleted session");
@@ -230,13 +218,13 @@ router.post("/", async (req, res) => {
     // create Session 
     const newSession = new Session({
         names: newUser,
-        linkID: link_ID,
+        linkId: link_ID,
         budget: req.body.budget,
         activities: req.body.activities
     });
 
     // add Session to collection
-    newSession.save((err, data) => {
+    await newSession.save((err, data) => {
         if (err) {
             throw err;
         }   
@@ -245,13 +233,9 @@ router.post("/", async (req, res) => {
     });   
 
     var placeIds = await getLocationIDs(req.body.activities, req.body.budget);
-    console.log("Place IDs:");
-    console.log(placeIds);
-    // console.log(placeIds.length);
-    // console.log(placeIds[0].length);
+
     var location_details = await getPlaceDetails(placeIds);
-    console.log("Location Details:");
-    console.log(location_details);
+
 
     for(let i = 0; i < placeIds.length; i++)
     {
@@ -292,7 +276,7 @@ router.put("/:id", async (req, res) => {
 
     // find Session by ID and add new User to names
     await Session.findOneAndUpdate( 
-        { linkID : link_ID },
+        { linkId : link_ID },
         { $push : { names : newUser } }
     );
     res.cookie("userID", user_ID);
@@ -310,7 +294,7 @@ router.delete("/:id", async (req, res) => {
 
     // remove User from collection
     await User.deleteOne( 
-        { linkID: link_ID }
+        { linkId: link_ID }
     );
 
     res.send('Deleted User and Parameters');

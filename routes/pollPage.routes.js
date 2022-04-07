@@ -1,6 +1,5 @@
 const express = require('express');
 const PollPage = require("../models/pollPage.model");
-const Location = require("../models/locations.model");
 const Session = require("../models/session.model");
 const User = require("../models/user.model");
 

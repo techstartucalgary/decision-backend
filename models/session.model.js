@@ -3,7 +3,7 @@ const userSchema = require('../models/user.model').schema;
 
 const sessionSchema = new mongoose.Schema({
 
-    linkID: {
+    linkId: {
         type: String,
         require: true,
     },

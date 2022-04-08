@@ -122,9 +122,10 @@ router.put("/:id/addVotes", async (req, res) => {
 
     var locIds = req.body.locationIds;
     var validLocations = [];
+    var validName = '';
 
     // find valid locations
-    await User.findOne({
+    await User.findOne({ 
         $and: [
             { linkId: { $eq: req.params.id } },
             { userId: { $eq: req.body.userId } }, 
@@ -140,15 +141,15 @@ router.put("/:id/addVotes", async (req, res) => {
         else
         {
             // console.log(response);
-            if(response.locationVotes.length == 0)
+            if(response.locationVotes.length == 0) // if the user hasnet voted for anything
             {
-                validLocations = req.body.locationIds;
+                validLocations = req.body.locationIds; // then all location Ids are valid and they can vote for them
             }
-            else
+            else // if the user already has locations they voted for
             {
                 var check = false;
                 // console.log(locIds[0] == response.locationVotes[0]);
-                for(let i = 0; i < locIds.length; i++)
+                for(let i = 0; i < locIds.length; i++) // check which locationIds they are trying to vote for is valid
                 {
                     for(let j = 0; j < response.locationVotes.length; j++)
                     {
@@ -159,7 +160,7 @@ router.put("/:id/addVotes", async (req, res) => {
                     }
                     if(check == false)
                     {
-                        validLocations.push(locIds[i]);
+                        validLocations.push(locIds[i]); // store the valid location id
                     }
                     check = false;
                 }
@@ -167,6 +168,7 @@ router.put("/:id/addVotes", async (req, res) => {
             // console.log("Valid locations:");
             // console.log(validLocations);
         }
+        validName = response.userName; // store userName
 
     })
 
@@ -197,7 +199,8 @@ router.put("/:id/addVotes", async (req, res) => {
             ],
         },
         {
-            $inc : {votes: 1}
+            $inc : {votes: 1},
+            $push : {members: validName}
         },
         function(err, result) {
             if(err)
@@ -218,6 +221,8 @@ router.put("/:id/deleteVotes", async (req, res) => {
 
     var locIds = req.body.locationIds;
     var validLocations = [];
+    var validName = '';
+
 
     // match locations
     await User.findOne({
@@ -236,15 +241,15 @@ router.put("/:id/deleteVotes", async (req, res) => {
         else
         {
             // console.log(response);
-            if(response.locationVotes.length == 0)
+            if(response.locationVotes.length == 0) // if the user didnt vote for anything, cannot delete votes
             {
                 res.send("Cannot delete votes");
             }
-            else
+            else // find valid locations that you can delete votes for
             {
                 var check = false;
                 // console.log(locIds[0] == response.locationVotes[0]);
-                for(let i = 0; i < locIds.length; i++)
+                for(let i = 0; i < locIds.length; i++) 
                 {
                     for(let j = 0; j < response.locationVotes.length; j++)
                     {
@@ -255,11 +260,12 @@ router.put("/:id/deleteVotes", async (req, res) => {
                     }
                     if(check == true)
                     {
-                        validLocations.push(locIds[i]);
+                        validLocations.push(locIds[i]); // store the valid location
                     }
                     check = false;
                 }
             }
+            validName = response.userName; // store userName
             // console.log("Valid locations:");
             // console.log(validLocations);
         }
@@ -290,8 +296,8 @@ router.put("/:id/deleteVotes", async (req, res) => {
         ] 
     },
     {
-        $inc : {"votes" : -1},
-        $pull : {"members" : req.body.memberName}
+        $inc : {votes : -1},
+        $pull : {members: validName}
     }, {
         new: true
     }, function(err, result) {

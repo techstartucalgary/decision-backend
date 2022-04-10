@@ -25,6 +25,11 @@ mongoose.connect(process.env.DATABASE_URL, {
     }, () => { console.log("Mongo Connected")
 });
 
+app.get("/", (req, res) => {
+    res.status(200).send("message: is this thing on?")
+
+})
+
 // Some code to allow verbose logging of DB connection status
 let connection = mongoose.connection;
 

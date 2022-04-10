@@ -217,8 +217,9 @@ router.post("/", async (req, res) => {
 
     // create Session 
     const newSession = new Session({
-        names: newUser,
+        names: newUser.userName,
         linkId: link_ID,
+        userId: newUser.userId,
         budget: req.body.budget,
         activities: req.body.activities
     });
@@ -228,7 +229,6 @@ router.post("/", async (req, res) => {
         if (err) {
             throw err;
         }   
-        res.cookie("userID", user_ID);
         res.json(data); 
     });   
 
@@ -279,9 +279,8 @@ router.put("/:id", async (req, res) => {
         { linkId : link_ID },
         { $push : { names : newUser } }
     );
-    res.cookie("userID", user_ID);
-    console.log('Added User and Parameters');
-    res.send('Added User')
+
+    res.json(newUser.userId);
 });
 
 // Method to update users parameters

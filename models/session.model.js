@@ -7,6 +7,10 @@ const sessionSchema = new mongoose.Schema({
         type: String,
         require: true,
     },
+    userId: {
+        type: String,
+        require: true,
+    },
     names: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

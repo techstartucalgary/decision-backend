@@ -36,7 +36,7 @@ const getLocationIDs = async function (categories, budget) {
     for(let i = 0; i < categories.length; i++)
     {
         params = {
-            input: categories[i],
+            input: categories[i] + "in Downtown Calgary",
             minPriceLevel: 0,
             maxPriceLevel: budget,
             openNow: true,
@@ -226,7 +226,6 @@ router.post("/", async (req, res) => {
 
     var location_details = await getPlaceDetails(placeIds);
 
-
     for(let i = 0; i < placeIds.length; i++)
     {
         for(let j = 0; j < placeIds[i].length; j++)
@@ -234,6 +233,7 @@ router.post("/", async (req, res) => {
             createPoll(location_details[i][j], link_ID);
         }
     }
+    
     console.log("Done!");
 
 

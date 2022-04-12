@@ -19,6 +19,7 @@ const createID = function () {
 };
 
 
+
 const getLocationIDs = async function (categories, budget) {
 
     var placeIds = [];
@@ -36,7 +37,6 @@ const getLocationIDs = async function (categories, budget) {
     {
         params = {
             input: categories[i],
-            location: { "lat": 51.044144, "long": -114.055249},
             minPriceLevel: 0,
             maxPriceLevel: budget,
             openNow: true,

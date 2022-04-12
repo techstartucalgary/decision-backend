@@ -26,7 +26,7 @@ mongoose.connect(process.env.DATABASE_URL, {
 });
 
 app.get("/", (req, res) => {
-    res.status(200).send("message: is this thing on?")
+    res.status(200).send("message: is this thing on? Count: 3")
 
 })
 

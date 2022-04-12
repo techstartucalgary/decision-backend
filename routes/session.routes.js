@@ -19,17 +19,6 @@ const createID = function () {
 };
 
 
-router.get("/testApi", async (req, res) =>{
-    var cat = ["Shopping", "Cafe"];
-    var location_data = await getLocationIDs(cat, 2);
-    var location_details = await getPlaceDetails(location_data);
-    res.send("Done");
-
-
-
-    
-})
-
 const getLocationIDs = async function (categories, budget) {
 
     var placeIds = [];
@@ -47,6 +36,7 @@ const getLocationIDs = async function (categories, budget) {
     {
         params = {
             input: categories[i],
+            location: { "lat": 51.044144, "long": -114.055249},
             minPriceLevel: 0,
             maxPriceLevel: budget,
             openNow: true,

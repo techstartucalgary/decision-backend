@@ -26,7 +26,7 @@ const getLocationIDs = async function (categories, budget) {
     // var priceLevels = [];
     var params = {
         input: "",
-        location: {lat: 51.044467, long:-114.05158},
+ //       location: {lat: 51.044467, long:-114.05158},
         minPriceLevel: 0,
         maxPriceLevel: 0,
         openNow: true,
@@ -37,7 +37,7 @@ const getLocationIDs = async function (categories, budget) {
     for(let i = 0; i < categories.length; i++)
     {
         params = {
-            input: categories[i],
+            input: categories[i] + "near me",
             minPriceLevel: 0,
             maxPriceLevel: budget,
             openNow: true,

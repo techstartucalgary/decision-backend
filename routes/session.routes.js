@@ -26,6 +26,7 @@ const getLocationIDs = async function (categories, budget) {
     // var priceLevels = [];
     var params = {
         input: "",
+ //       location: {lat: 51.044467, long:-114.05158},
         minPriceLevel: 0,
         maxPriceLevel: 0,
         openNow: true,
@@ -36,7 +37,7 @@ const getLocationIDs = async function (categories, budget) {
     for(let i = 0; i < categories.length; i++)
     {
         params = {
-            input: categories[i] + "in Downtown Calgary",
+            input: categories[i] + "in Calgary",
             minPriceLevel: 0,
             maxPriceLevel: budget,
             openNow: true,
@@ -225,6 +226,8 @@ router.post("/", async (req, res) => {
     var placeIds = await getLocationIDs(req.body.activities, req.body.budget);
 
     var location_details = await getPlaceDetails(placeIds);
+
+    console.log(location_details)
 
     for(let i = 0; i < placeIds.length; i++)
     {

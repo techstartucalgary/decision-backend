@@ -12,10 +12,7 @@ const sessionSchema = new mongoose.Schema({
         require: true,
     },
     names: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        require: true,
-        unique: false
+        type: String
     }],
     budget: [{
         type: String,

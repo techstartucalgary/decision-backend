@@ -119,15 +119,12 @@ const getPlaceDetails = async function (place_ids) {
                 rating: r.data.result.rating,
                 reviews: r.data.result.user_ratings_total
             }
-            // console.log(r.data.result);
             loc_details.push(location);
         }
         locationDetails.push(loc_details);
         
     }    
-    // console.log(locationDetails);
     return locationDetails;
-    // console.log(r.data)
 }
 
 // creates a new Poll document given location and link IDs
@@ -194,7 +191,7 @@ router.post("/", async (req, res) => {
     // create User
     const newUser = new User({
         linkId: link_ID,
-        userName: req.body.names,
+        userName: req.body.name,
         userId: user_ID,
         creator: true
     })
@@ -205,7 +202,6 @@ router.post("/", async (req, res) => {
             throw err;
         }
     });
-
     // create Session 
     const newSession = new Session({
         names: newUser.userName,
@@ -226,8 +222,6 @@ router.post("/", async (req, res) => {
     var placeIds = await getLocationIDs(req.body.activities, req.body.budget);
 
     var location_details = await getPlaceDetails(placeIds);
-
-    console.log(location_details)
 
     for(let i = 0; i < placeIds.length; i++)
     {
@@ -251,7 +245,7 @@ router.put("/:id", async (req, res) => {
 
     // create user ID
     user_ID = createID();
-
+    
     // create User
     const newUser = new User({
         linkId: link_ID,
@@ -259,7 +253,6 @@ router.put("/:id", async (req, res) => {
         userId: user_ID,
         creator: false
     });
-
     // add User to collection
     await newUser.save((err, data) => {
         if (err) {
@@ -270,7 +263,7 @@ router.put("/:id", async (req, res) => {
     // find Session by ID and add new User to names
     await Session.findOneAndUpdate( 
         { linkId : link_ID },
-        { $push : { names : newUser } }
+        { $push : { names : newUser.userName } }
     );
 
     res.json(newUser.userId);

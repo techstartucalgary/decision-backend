@@ -24,31 +24,15 @@ function createPoll(loc, id)
 async function getSession(id)
 {
     var session;
+    console.log(id)
     await Session.findOne({
-        linkID: { $eq: id }
+        linkId: { $eq: id }
     }). then(function(response)
     {
-        // console.log(response.activities);
         session = response; //.budget[0];
-        // console.log(budget);
-        
     })
     return session;
 }
-
-
-// returns user's votes given userID
-// async function findUserVotes(userId)
-// {
-//     await User.findOne({
-//         userId: { $eq: userId }  
-//     }). then(function(response)
-//     {
-//        //  console.log(response);
-//         return response;
-
-//     })
-// }
 
 
 // update user's location votes
@@ -73,7 +57,7 @@ function updateUserVotes(userID, locationIDs)
 
 }
 
-router.get("/:id", async (req, res) => {
+router.get("/:id/", async (req, res) => {
     var session = await getSession(req.params.id)
     res.json(session)
 });
@@ -95,7 +79,6 @@ router.post("/:id/createPolls", async (req, res) => {
     var categories = session.activities;
     var b = session.budget;
     var location;
-    console.log(categories);
     let poll = new PollPage();
     await Location.find({
         $and: [
@@ -137,15 +120,13 @@ router.put("/:id/addVotes", async (req, res) => {
         ],  
     }). then(function(response) 
     {
-        // console.log("Location Votes:")
-        // console.log(response.locationVotes);
+
         if(response == null)
         {
             res.send("Cannot find User");
         }
         else
         {
-            // console.log(response);
             if(response.locationVotes.length == 0) // if the user hasnet voted for anything
             {
                 validLocations = req.body.locationIds; // then all location Ids are valid and they can vote for them

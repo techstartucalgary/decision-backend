@@ -252,7 +252,7 @@ router.put("/:id", async (req, res) => {
     // create User
     const newUser = new User({
         linkId: link_ID,
-        userName: req.body.name,
+        userName: req.body.names,
         userId: user_ID,
         creator: false
     });

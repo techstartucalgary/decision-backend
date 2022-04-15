@@ -73,6 +73,11 @@ function updateUserVotes(userID, locationIDs)
 
 }
 
+router.get("/:id", async (req, res) => {
+    var session = await getSession(req.params.id)
+    res.json(session)
+});
+
 // returns the polls of given linkID
 router.get("/:id/getPolls", async (req, res) => {
 

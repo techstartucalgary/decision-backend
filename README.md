@@ -20,11 +20,9 @@ Google's location API.
  
  ````
  npm start 
- 
  ```` 
  ```` 
  npm run startDev (nodemon)
- 
  ```` 
  ## FrontEnd
  Link to Where To's frontend component

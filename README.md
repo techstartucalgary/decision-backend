@@ -27,3 +27,10 @@ Google's location API.
  ## FrontEnd
  Link to Where To's frontend component
  https://github.com/Tech-Start-UCalgary/decision-frontend 
+
+## Contributors 
+Vivian Huynh
+Nemanja Grujic
+Nolan Chan
+Lubaba Sheikh
+Naveed Aria

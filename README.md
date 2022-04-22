@@ -29,8 +29,8 @@ Google's location API.
  https://github.com/Tech-Start-UCalgary/decision-frontend 
 
 ## Contributors 
-Vivian Huynh
-Nemanja Grujic
-Nolan Chan
-Lubaba Sheikh
-Naveed Aria
+Vivian Huynh  
+Nemanja Grujic  
+Nolan Chan  
+Lubaba Sheikh  
+Naveed Aria  

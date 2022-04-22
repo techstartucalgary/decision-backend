@@ -32,7 +32,7 @@ Google's location API.
 Increase range of API. Currently only search results in Calgary, Alberta are being called  
 Nearby Search functionality from the Google Places API  
 Code Cleanup, and Documentation  
-Tests  
+Create a test suite for our Routes    
 ## Contributors 
 Vivian Huynh  
 Nemanja Grujic  

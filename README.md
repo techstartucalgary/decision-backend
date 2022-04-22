@@ -28,6 +28,11 @@ Google's location API.
  Link to Where To's frontend component
  https://github.com/Tech-Start-UCalgary/decision-frontend 
 
+## To-Do
+Increase range of API. Currently only search results in Calgary, Alberta are being called  
+Nearby Search functionality from the Google Places API  
+Code Cleanup, and Documentation  
+Tests  
 ## Contributors 
 Vivian Huynh  
 Nemanja Grujic  
